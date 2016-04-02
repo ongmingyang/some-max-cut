@@ -1,11 +1,14 @@
 import cliqueTree as ct
+import beliefPropagation as bp
+from factorTable import FactorTable
 
 # generate sparse matrix
 I = [0, 1, 3, 1, 5, 2, 6, 3, 4, 5, 4, 5, 6, 5, 6]
 J = [0, 0, 0, 1, 1, 2, 2, 3, 3, 3, 4, 4, 4, 5, 6]
 #A = spmatrix(1.0, I, J, (7,7))
 
-print ct.graph_to_clique_tree(I,J)
+c = ct.graph_to_clique_tree(I,J)
+print c
 
 # compute symbolic factorization using AMD ordering
 #symb = cp.symbolic(A, p=amd.order)
@@ -21,3 +24,13 @@ print ct.graph_to_clique_tree(I,J)
 #print symb.sparsity_pattern(reordered=True, symmetric=False)
 #print csp.spmatrix(reordered=True)
 #print symb
+
+cpd = bp.max_marginal(c)
+print cpd.nodes
+print cpd
+
+
+#l = [1,2,3,4,5]
+#a = FactorTable(l)
+#print a.rows
+#print a

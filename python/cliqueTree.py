@@ -31,7 +31,7 @@ class Clique:
   def __init__(self, nodes):
     self.neighbours = set()
     self.nodes = nodes
-    self.potential = FactorTable(nodes)
+    self.potential = FactorTable(nodes, init_entries=True)
 
   def add_neighbours(self, cliques):
     self.neighbours.update(cliques)

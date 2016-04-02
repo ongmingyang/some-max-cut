@@ -1,0 +1,2 @@
+There is a python version, and a C version. The python version requires
+cvx_opt and chompack. The C version doesn't work.
