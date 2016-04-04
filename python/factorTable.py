@@ -1,4 +1,4 @@
-from itertools import product
+from itertools import product, combinations
 
 #
 # A FactorTable object represents a factor/potential table
@@ -11,8 +11,13 @@ class FactorTable:
   def __init__(self, nodes, init_entries=False):
     row_generator = product([-1,1], repeat=len(nodes))
     self.nodes = sorted(nodes)
-    entries = lambda x: -sum(x) if init_entries else 0
-    self.rows = {x: entries(x) for x in row_generator}
+
+    # Factor table is initialized to be clique
+    if init_entries:
+      entries = lambda x: -sum([y[0]*y[1] for y in combinations(x,2)])
+      self.rows = {x: entries(x) for x in row_generator}
+    else:
+      self.rows = {x: 0 for x in row_generator}
 
   # Returns the associated log potential of the assignment
   #
@@ -34,6 +39,12 @@ class FactorTable:
     tup = tuple([assignment[x] for x in self.nodes])
     self.rows[tup] = new_potential
     
+  # Returns the MAP assignment of a factor table, in the form of a dictionary
+  #
+  def get_map(self):
+    MAP = max(self.rows, key=self.rows.get)
+    return {v: MAP[i] for i,v in enumerate(self.nodes)}
+
   # Returns a FactorTable that is the product of the current table and
   # the other table. The new table has a scope that is the union of the
   # scopes of the two tables
@@ -45,7 +56,6 @@ class FactorTable:
     cv = self.nodes
     lv = other.nodes
     new_scope = list(set(cv) | set(lv))
-    sepset = list(set(cv) - set(lv))
     new_table = FactorTable(new_scope)
 
     # Indicator vector if variable is in the scope of the two table
@@ -58,6 +68,7 @@ class FactorTable:
       lv_row = tuple([v for i,v in enumerate(r) if i_lv[i]])
 
       # Compute log linear joint product
+      # TODO is there an error here?
       new_table.rows[r] = self.rows[cv_row] + other.rows[lv_row]
 
     return new_table

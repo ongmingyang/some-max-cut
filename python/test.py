@@ -1,3 +1,4 @@
+import random
 import cliqueTree as ct
 import beliefPropagation as bp
 from factorTable import FactorTable
@@ -25,12 +26,20 @@ print c
 #print csp.spmatrix(reordered=True)
 #print symb
 
-cpd = bp.max_marginal(c)
-print cpd.nodes
-print cpd
+n = len(c.cliques)
+clique_id = random.randint(0,n-1)
+m = bp.max_marginal(c, clique_id)
+print "max marginal:"
+print m
+print "\n"
+
+bp.traceback(c, clique_id, m)
+
+print "final assignment:"
+print m
 
 
 #l = [1,2,3,4,5]
-#a = FactorTable(l)
+#a = FactorTable(l, True)
 #print a.rows
 #print a
