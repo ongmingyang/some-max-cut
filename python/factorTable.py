@@ -1,21 +1,97 @@
 from itertools import product, combinations
 
 #
+# Computes the maximum entries of the table over the new scope lv. This method
+# returns a new instance of FactorTable.
+#
+# @param table  The instance of FactorTable
+# @param lv     A list of variables to remain i.e. the new scope of
+#               FactorTable after marginal maximization
+#
+def compute_max(table, lv):
+  # Define current variables
+  old_scope = table.nodes
+  new_scope = sorted(lv)
+  new_table = FactorTable(new_scope)
+
+  # Indicator vector if variable is in new scope
+  i_s = [(x in new_scope) for x in old_scope]
+
+  # Iterate through all rows in the old table
+  for old_assignment in table.rows: 
+    # Determine row assignment in new table
+    r = tuple([v for i,v in enumerate(old_assignment) if i_s[i]])
+
+    # Update row in new table if necessary
+    new_table.rows[r] = max(new_table.rows[r], table.rows[old_assignment])
+
+  return new_table
+
+#
+# Returns a new table that is maximized over the variables that are already
+# assigned
+#
+# @param table          The instance of FactorTable
+# @param assignment     A dictionary of variables that are already assigned,
+#                       and their assignment values
+#
+def assign_max(table, assignment):
+  # Define current variables
+  cv = table.nodes
+  new_scope = list(set(cv) - set(assignment))
+  new_table = FactorTable(new_scope)
+
+  # Indicator vector if variable is in new scope
+  i_s = [(x in new_scope) for x in cv]
+
+  # Iterate through all rows in the old table
+  for old_assignment in table.rows: 
+    reject, r = False, []
+    for i,v in enumerate(old_assignment):
+      if i_s[i]: r.append(v)
+      else:
+        if assignment[table.nodes[i]] is not v:
+          reject = True
+          break
+      
+    # Reject row if row is not compatible with assignment
+    if reject: continue
+
+    # If row is compatible, update row in new table
+    r = tuple(r)
+    new_table.rows[r] = table.rows[old_assignment]
+
+  return new_table
+
+#
 # A FactorTable object represents a factor/potential table
 #
 # @param nodes        The nodes corresponding to the scope of the factor
-# @param init_entires If init_entries is true, set entries to size of cut in
-#                     clique, otherwise set entries to 0
+# @param matrix       If matrix is set, each row with assignment x will be
+#                     initialized with potential x'Ax, where A is the
+#                     submatrix of matrix spanned by the indices in node. If
+#                     matrix is not set, initialize all entries to 0.
 #
 class FactorTable:
-  def __init__(self, nodes, init_entries=False):
+  def __init__(self, nodes, matrix=False):
     row_generator = product([-1,1], repeat=len(nodes))
     self.nodes = sorted(nodes)
 
     # Factor table is initialized to be clique
-    if init_entries:
-      entries = lambda x: -sum([y[0]*y[1] for y in combinations(x,2)])
-      self.rows = {x: entries(x) for x in row_generator}
+    if matrix:
+      self.rows = {}
+      for x in row_generator:
+        self.rows[x] = 0
+
+        # Create a generator for assignment combinations and node
+        # combinations, both are iterated in the same order. Remember that
+        # nodes are sorted, and that matrix is lower triangular, so the
+        # combinations are generated in column major order
+        assignments = combinations(x,2)
+        for c,r in combinations(self.nodes,2):
+          xc, xr = assignments.next()
+          self.rows[x] -= matrix[r,c]*xr*xc
+
     else:
       self.rows = {x: 0 for x in row_generator}
 
@@ -68,7 +144,6 @@ class FactorTable:
       lv_row = tuple([v for i,v in enumerate(r) if i_lv[i]])
 
       # Compute log linear joint product
-      # TODO is there an error here?
       new_table.rows[r] = self.rows[cv_row] + other.rows[lv_row]
 
     return new_table
