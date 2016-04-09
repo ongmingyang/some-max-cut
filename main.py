@@ -10,10 +10,7 @@ def main(argv):
     path = argv
     f = open(path, 'r')
     g = csv.reader(f,delimiter=" ")
-    I, J = zip(*(sorted(row, reverse=True) for row in g))
-    I = [int(i) for i in I]
-    J = [int(j) for j in J]
-    print max_cut(I,J)
+    print max_cut(g)
     f.close()
 
 if __name__ == "__main__":
