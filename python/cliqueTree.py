@@ -1,5 +1,6 @@
 from cvxopt import spmatrix, amd
 import chompack as cp
+import spanningTree
 from collections import defaultdict as dd
 from factorTable import FactorTable
 
@@ -33,64 +34,73 @@ def graph_to_clique_tree(I, J):
 #
 class Clique:
   # Instantiation generates the factor table
-  def __init__(self, nodes, matrix):
-    self.neighbours = set()
+  def __init__(self, index, nodes, matrix):
+    self.index = index
+    self.neighbours = set() # edges in clique intersection graph
+    self.active_neighbours = set() # edges in clique tree
     self.nodes = sorted(nodes)
     self.potential = FactorTable(nodes, matrix)
 
   def add_neighbours(self, cliques):
     self.neighbours.update(cliques)
 
+  # Returns a list of variables representing the sepset of self and other
+  def determine_sepset(self, other):
+    return list(set(self.nodes) & set(other.nodes))
+
+  # Use this to get neighbours for BP algorithm
+  def get_neighbours(self):
+    return self.active_neighbours
+
   # The clique in human readable format
   def __str__(self):
     return "(" + str(self.nodes) + ")"
 
 #
-# TODO: this represents a weighted clique intersection graph, NOT a clique
-# tree!
-#
 # A CliqueTree object represents a collection of cliques, each clique is
-# connected to neighbouring cliques via an undirected edge. Two cliques are
-# neighbours if their scopes have non-empty intersections 
+# connected to neighbouring cliques via an undirected edge. 
 #
-# The Tree property of CliqueTree is assumed to be implicit, that is, it is
-# assumed that the cliques given to the instantiator already form a clique
-# tree. The datatype does not enforce that there cannot be cliques that form
-# cycles.
-#
-# @param cliques    A clique tree represented as a list of lists, each list
+# @param cliques    A clique intersection graph represented as a list of lists, each list
 #                   representing the scope of a clique
 # @param matrix     A pointer to the original adjacency matrix of the graph,
 #                   used to instantiate clique factor tables
 #
 class CliqueTree:
-  # Instantiation creates a clique list and connectes each clique to all its
+  # Instantiation creates a clique list and connects each clique to all its
   # neighbours in the tree
   def __init__(self, cliques, matrix):
     self.cliques = []
+    self.edges = {} # Dictionary of {edge: weight}
     self.node_to_clique = dd(list)
 
     # Instantiate cliques and fill node_to_clique entries
-    for clique_list in cliques:
-      clique = Clique(clique_list, matrix)
-      for node in clique_list:
+    for index, nodes in enumerate(cliques):
+      clique = Clique(index, nodes, matrix)
+      for node in nodes:
         self.node_to_clique[node].append(clique)
       self.cliques.append(clique)
 
     # Update list of neighbours after node_to_clique entries are filled
     for clique in self.cliques:
       for node in clique.nodes:
-        # c contains all neighbours to clique
-        c = list(self.node_to_clique[node])
-        c.remove(clique)
+        neighbours = list(self.node_to_clique[node])
+        neighbours.remove(clique)
 
         # Add neighbours to clique
-        clique.add_neighbours(c)
+        clique.add_neighbours(neighbours)
 
+        # Add edge to edgeset
+        for neighbour in neighbours:
+          edge = tuple(sorted([neighbour.index, clique.index]))
+          self.edges[edge] = len(clique.determine_sepset(neighbour))
+
+    # Perform Kruskal to turn clique intersection graph into clique tree
+    spanningTree.kruskal(self)
+          
   # The clique tree in human readable format
   def __str__(self):
     s = "\n  ".join([str(c) + " -> " + \
-             ", ".join([str(x) for x in c.neighbours]) \
+             ", ".join([str(x) for x in c.get_neighbours()]) \
               for c in self.cliques])
     return "Clique Tree:\n  " + s
 

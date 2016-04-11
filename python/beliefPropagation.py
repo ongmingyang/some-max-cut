@@ -15,7 +15,7 @@ def max_marginal(tree, clique_id):
 # Performs upwards pass from clique to parent clique. Returns message to parent
 #
 def upwards_propagate(clique, visited, parent=None):
-  children = set(clique.neighbours) - set([parent]) - visited
+  children = set(clique.get_neighbours()) - set([parent]) - visited
   visited.update(children)
   messages = [upwards_propagate(child, visited, clique) for child in children]
 
@@ -56,7 +56,7 @@ def traceback(tree, clique_id, assignment):
 # the way
 #
 def downwards_propagate(assignment, clique, visited=set(), parent=None):
-  children = set(clique.neighbours) - set([parent]) - visited
+  children = set(clique.get_neighbours()) - set([parent]) - visited
   visited.update(children)
 
   # Assign current clique
