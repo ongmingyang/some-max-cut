@@ -1,8 +1,11 @@
+import sys
 from cvxopt import spmatrix, amd
 import chompack as cp
 import spanningTree
 from collections import defaultdict as dd
 from factorTable import FactorTable
+
+LARGEST_CLIQUE_SIZE = 10
 
 #
 # Converts a graph into a clique tree, and returns the clique tree object
@@ -12,7 +15,6 @@ from factorTable import FactorTable
 def graph_to_clique_tree(I, J):
   n = max(max(I),max(J))+1
   A = spmatrix(1, I+range(n), J+range(n))
-  print A
 
   # Compute symbolic factorization using AMD ordering
   # This automatically does a chordal completion on the graph
@@ -22,6 +24,15 @@ def graph_to_clique_tree(I, J):
   cliques = symb.cliques()
   perm = symb.p
   cliques = [[perm[i] for i in clique] for clique in cliques]
+
+  # If the largest clique is above threshold, we terminate the algorithm
+  cs = max(len(x) for x in cliques)
+  if cs > LARGEST_CLIQUE_SIZE:
+    sys.exit('''
+    Chordal completion has clique of size %d,
+    Max allowed size is %d,
+    Program terminating...
+    ''' % (cs, LARGEST_CLIQUE_SIZE))
 
   return CliqueTree(cliques, A)
 
@@ -54,7 +65,7 @@ class Clique:
 
   # The clique in human readable format
   def __str__(self):
-    return "(" + str(self.nodes) + ")"
+    return "(%s)" % str(self.nodes)
 
 #
 # A CliqueTree object represents a collection of cliques, each clique is
