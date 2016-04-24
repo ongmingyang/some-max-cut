@@ -1,11 +1,13 @@
 '''
-Generates a Series Parallel graph with n edges
+Generates a series parallel graph with approximately n edges
 
 Usage:
-$ python seriesParallel.py <n>
+$ python seriesParallel.py <n> <outputfile>
+
+<outputfile> will appear in the inputs directory
 '''
 
-import sys, random
+import sys, random, argparse
 
 class Node:
   def __init__(self):
@@ -68,20 +70,20 @@ def dfs(graph, start, f):
       visited.add(v)
       for w in v.neighbours:
         if w not in visited:
-          w.index = index
           index += 1
+          w.index = index
           stack.append(w)
+        if v.index < w.index:
           f.write("%d %d\n" % (v.index, w.index))
 
 if __name__ == "__main__":
-  try:
-    n = int(sys.argv[1])
-    outputfile = sys.argv[2]
-  except:
-    print "Usage: python seriesParallel.py <n> <outputfile>"
-    sys.exit(1)
-  G = generate(n)
-  f = open("../inputs/%s" % outputfile, 'w')
+  parser = argparse.ArgumentParser()
+  parser.add_argument("n", help="approximate number of edges")
+  parser.add_argument("outputfile", help="path to output file")
+  args = parser.parse_args()
+
+  G = generate(int(args.n))
+  f = open(args.outputfile, 'w')
   G.s.index = 0
   dfs(G,G.s,f)
   f.close()

@@ -1,3 +1,4 @@
+import logging as log
 from factorTable import compute_max, assign_max
 from operator import mul
 
@@ -24,22 +25,19 @@ def upwards_propagate(clique, visited, parent=None):
 
   if messages:
     message_table = reduce(mul,messages)
-    print "Clique " + str(clique) + " receiving message table: "
-    print message_table.nodes
-    print message_table
-    print "Table product with itself:"
+    log.info("Clique %s receiving message table:\n%s\n%s" \
+        % (clique, message_table.nodes, message_table))
+
     psi = clique.potential * message_table
-    print psi.nodes
-    print psi
     new_table = compute_max(psi, lv)
+
+    log.info("Table product with itself:\n%s\n%s" % (psi.nodes, psi))
   else:
     new_table = compute_max(clique.potential, lv)
 
-  print "Performing upwards pass from clique " + str(clique)
-  print "to parent " + str(parent)
-  print "Sending message:"
-  print new_table.nodes
-  print new_table
+  log.info("Performing upwards pass from clique %s to parent %s" \
+          % (clique, parent))
+  log.info("Sending message: %s\n%s" % (new_table.nodes, new_table))
   return new_table
 
 #
@@ -69,10 +67,7 @@ def downwards_propagate(assignment, clique, visited=set(), parent=None):
   # between node assignments arise
   assignment.update(cur_assignment)
 
-  print "Performing downwards pass:"
-  print clique
-  print assignment
-  print "\n"
+  log.info("Performing downwards pass:\n%s\n%s\n" % (clique, assignment))
 
   # Recurse onto children in tree
   for child in children:
