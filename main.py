@@ -1,13 +1,26 @@
-import sys, csv, argparse
+import sys, csv, time, argparse
 import logging as log
 sys.path.insert(0,'python')
 from maxCut import max_cut
 
+def timing(func):
+  def wrapper(*args):
+    start = time.time()
+    res = func(*args)
+    end = time.time()
+    t = (end-start)
+    print "Function <%s> took %0.5f seconds to run" \
+          % (func.__name__, t)
+    return res
+  return wrapper
+
+@timing
 def main(path):
   f = open(path, 'r')
-  g = csv.reader(f,delimiter=" ")
-  print max_cut(g)
+  edges = csv.reader(f,delimiter=" ")
+  assignment, opt = max_cut(edges)
   f.close()
+  return opt
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
@@ -17,5 +30,6 @@ if __name__ == "__main__":
   args = parser.parse_args()
   if args.verbose:
     log.basicConfig(format="%(message)s", level=log.DEBUG)
-  main(args.inputfile)
+
+  print "The max cut is %d" % main(args.inputfile)
 

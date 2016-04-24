@@ -1,10 +1,8 @@
 '''
-Generates a series parallel graph with approximately n edges
+Generates a series parallel graph
 
 Usage:
 $ python seriesParallel.py <n> <outputfile>
-
-<outputfile> will appear in the inputs directory
 '''
 
 import sys, random, argparse
@@ -52,7 +50,7 @@ def generate(n):
     return Graph()
 
   # Random partition
-  n1 = random.randint(0,n-1)
+  n1 = random.randint(1,n-1)
   n2 = n - n1
   G1 = generate(n1)
   G2 = generate(n2)
@@ -61,29 +59,30 @@ def generate(n):
   random.choice([G1.serify, G1.parallelify])(G2)
   return G1
 
-def dfs(graph, start, f):
+def bfs(graph, start, f):
   index = 0
-  visited, stack = set(), [start]
-  while stack:
-    v = stack.pop()
+  visited, queue = set(), [start]
+  while queue:
+    v = queue.pop(0)
     if v not in visited:
       visited.add(v)
       for w in v.neighbours:
         if w not in visited:
-          index += 1
-          w.index = index
-          stack.append(w)
+          queue.append(w)
+          if w.index is None:
+            index += 1
+            w.index = index
         if v.index < w.index:
           f.write("%d %d\n" % (v.index, w.index))
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
-  parser.add_argument("n", help="approximate number of edges")
+  parser.add_argument("n", help="series parallel recursion tree depth")
   parser.add_argument("outputfile", help="path to output file")
   args = parser.parse_args()
 
   G = generate(int(args.n))
   f = open(args.outputfile, 'w')
   G.s.index = 0
-  dfs(G,G.s,f)
+  bfs(G,G.s,f)
   f.close()
