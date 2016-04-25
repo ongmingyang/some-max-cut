@@ -1,3 +1,4 @@
+import stats
 import cliqueTree as ct
 import beliefPropagation as bp
 from factorTable import FactorTable
@@ -9,6 +10,7 @@ from factorTable import FactorTable
 #
 def max_cut(edges):
   J, I = zip(*(sorted((int(i),int(j))) for i,j in edges))
+  stats.number_of_edges = len(I)
   c = ct.graph_to_clique_tree(list(I),list(J))
   clique_id = 0
   m = bp.max_marginal(c, clique_id)

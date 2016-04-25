@@ -2,6 +2,7 @@ import sys, csv, time, argparse
 import logging as log
 sys.path.insert(0,'python')
 from maxCut import max_cut
+import stats 
 
 def timing(func):
   def wrapper(*args):
@@ -31,5 +32,8 @@ if __name__ == "__main__":
   if args.verbose:
     log.basicConfig(format="%(message)s", level=log.DEBUG)
 
-  print "The max cut is %d" % main(args.inputfile)
+  opt = main(args.inputfile)
+  print "Graph has %d nodes, %d edges, with maximum clique size %d" \
+        % (stats.number_of_nodes, stats.number_of_edges, stats.maximum_clique),
+  print "and max cut of %d" % opt
 

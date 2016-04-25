@@ -9,13 +9,16 @@ tree of a graph. Two algorithms are included: kruskal and prim
 #
 # @ param CIG   A weighted clique intersection graph
 #
-def kruskal(CIG):
-  parents = {c: c for c in CIG.cliques}
-  edges = sorted(CIG.edges, key=CIG.edges.get, reverse=True)
+def kruskal(cliques, edges):
+  parents = {c: c for c in cliques}
+  edges = sorted(edges, key=edges.get, reverse=True)
 
   def find_set(clique):
-    if parents[clique] == clique: return clique
-    else: return find_set(parents[clique])
+    if parents[clique] == clique: 
+      return clique
+    else: 
+      parents[clique] = find_set(parents[clique])
+      return parents[clique]
 
   def union(u,v):
     u_root = find_set(u)
@@ -23,11 +26,10 @@ def kruskal(CIG):
     parents[u_root] = v_root
 
   for ui,vi in edges:
-    u,v = CIG.cliques[ui], CIG.cliques[vi]
+    u,v = cliques[ui], cliques[vi]
     if find_set(u) is not find_set(v):
       # Edge belongs in MST
-      u.active_neighbours.add(v)
-      v.active_neighbours.add(u)
+      u.connect(v)
       union(u,v)
     
 def prim():

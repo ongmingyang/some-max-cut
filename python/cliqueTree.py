@@ -2,6 +2,7 @@ import sys
 from cvxopt import spmatrix, amd
 import chompack as cp
 import spanningTree
+import stats 
 from collections import defaultdict as dd
 from factorTable import FactorTable
 
@@ -14,6 +15,7 @@ LARGEST_CLIQUE_SIZE = 10
 #
 def graph_to_clique_tree(I, J):
   n = max(max(I),max(J))+1
+  stats.number_of_nodes = n
   A = spmatrix(1, I+range(n), J+range(n))
 
   # Compute symbolic factorization using AMD ordering
@@ -34,6 +36,7 @@ def graph_to_clique_tree(I, J):
     Program terminating...
     ''' % (cs, LARGEST_CLIQUE_SIZE))
 
+  stats.maximum_clique = cs
   return CliqueTree(cliques, A)
 
 #
@@ -47,21 +50,22 @@ class Clique:
   # Instantiation generates the factor table
   def __init__(self, index, nodes, matrix):
     self.index = index
-    self.neighbours = set() # edges in clique intersection graph
-    self.active_neighbours = set() # edges in clique tree
+    self.neighbours = set() # edges in clique tree
     self.nodes = sorted(nodes)
     self.potential = FactorTable(nodes, matrix)
 
-  def add_neighbours(self, cliques):
-    self.neighbours.update(cliques)
-
   # Returns a list of variables representing the sepset of self and other
-  def determine_sepset(self, other):
-    return list(set(self.nodes) & set(other.nodes))
+  def determine_sepset_size(self, other):
+    return len(set(self.nodes) & set(other.nodes))
 
-  # Use this to get neighbours for BP algorithm
+  # Creates an edge between self and other cliques
+  def connect(self, other):
+    self.neighbours.add(other)
+    other.neighbours.add(self)
+
+  # Use this to get neighbours in the clique tree 
   def get_neighbours(self):
-    return self.active_neighbours
+    return self.neighbours
 
   # The clique in human readable format
   def __str__(self):
@@ -81,32 +85,29 @@ class CliqueTree:
   # neighbours in the tree
   def __init__(self, cliques, matrix):
     self.cliques = []
-    self.edges = {} # Dictionary of {edge: weight}
-    self.node_to_clique = dd(list)
+    edges = {} # Dictionary of {edge: weight}
+    node_to_clique = dd(list)
 
     # Instantiate cliques and fill node_to_clique entries
     for index, nodes in enumerate(cliques):
       clique = Clique(index, nodes, matrix)
       for node in nodes:
-        self.node_to_clique[node].append(clique)
+        node_to_clique[node].append(clique)
       self.cliques.append(clique)
 
     # Update list of neighbours after node_to_clique entries are filled
     for clique in self.cliques:
       for node in clique.nodes:
-        neighbours = list(self.node_to_clique[node])
+        neighbours = list(node_to_clique[node])
         neighbours.remove(clique)
-
-        # Add neighbours to clique
-        clique.add_neighbours(neighbours)
 
         # Add edge to edgeset
         for neighbour in neighbours:
           edge = tuple(sorted([neighbour.index, clique.index]))
-          self.edges[edge] = len(clique.determine_sepset(neighbour))
+          edges[edge] = clique.determine_sepset_size(neighbour)
 
     # Perform Kruskal to turn clique intersection graph into clique tree
-    spanningTree.kruskal(self)
+    spanningTree.kruskal(self.cliques, edges)
           
   # The clique tree in human readable format
   def __str__(self):
