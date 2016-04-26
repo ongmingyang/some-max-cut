@@ -38,7 +38,7 @@ def compute_max(table, lv):
 def assign_max(table, assignment):
   # Define current variables
   cv = table.nodes
-  new_scope = list(set(cv) - set(assignment))
+  new_scope = set(x for x in cv if x not in assignment)
   new_table = FactorTable(new_scope)
 
   # Indicator vector if variable is in new scope
@@ -58,8 +58,7 @@ def assign_max(table, assignment):
     if reject: continue
 
     # If row is compatible, update row in new table
-    r = tuple(r)
-    new_table.rows[r] = table.rows[old_assignment]
+    new_table.rows[tuple(r)] = table.rows[old_assignment]
 
   return new_table
 

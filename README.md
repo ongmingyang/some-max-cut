@@ -21,3 +21,11 @@ The input file contains the edges of the graph. For example,
 Represents the complete graph on three vertices.
 
 
+Profiling
+---------
+
+To profile the script, run
+
+```
+python -m cProfile -s 'tottime' main.py <inputfile>
+```

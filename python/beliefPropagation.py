@@ -53,23 +53,20 @@ def traceback(tree, clique_id, assignment):
 # Performs downward pass from clique to its children. Assigns variables along
 # the way
 #
-def downwards_propagate(assignment, clique, visited=set(), parent=None):
-  children = set(clique.get_neighbours()) - set([parent]) - visited
-  visited.update(children)
-
+def downwards_propagate(assignment, clique, parent=None):
   # Assign current clique
   maximized_potential = assign_max(clique.potential, assignment)
 
   # Get MAP over current scope
   cur_assignment = maximized_potential.get_map()
 
-  # Update MAP over combined scope, prioritizing newer assignment if conflicts
-  # between node assignments arise
+  # Update MAP over combined scope
   assignment.update(cur_assignment)
 
   log.info("Performing downwards pass:\n%s\n%s\n" % (clique, assignment))
 
   # Recurse onto children in tree
-  for child in children:
-    downwards_propagate(assignment, child, visited, clique)
+  for neighbour in clique.get_neighbours():
+    if neighbour is parent: continue
+    downwards_propagate(assignment, neighbour, clique)
 
