@@ -10,27 +10,24 @@ tree of a graph. Two algorithms are included: kruskal and prim
 # @ param CIG   A weighted clique intersection graph
 #
 def kruskal(cliques, edges):
-  parents = {c: c for c in cliques}
+  parent = {c: c for c in cliques}
   edges = sorted(edges, key=edges.get, reverse=True)
 
   def find_set(clique):
-    if parents[clique] == clique: 
+    p = parent[clique]
+    if p is clique: 
       return clique
-    else: 
-      parents[clique] = find_set(parents[clique])
-      return parents[clique]
-
-  def union(u,v):
-    u_root = find_set(u)
-    v_root = find_set(v)
-    parents[u_root] = v_root
+    else:
+      parent[clique] = find_set(p)
+      return parent[clique]
 
   for ui,vi in edges:
     u,v = cliques[ui], cliques[vi]
-    if find_set(u) is not find_set(v):
-      # Edge belongs in MST
+    u_root, v_root = find_set(u), find_set(v)
+    if u_root is not v_root:
+      # Edge belongs in Clique Tree (MST)
       u.connect(v)
-      union(u,v)
+      parent[u_root] = v_root
     
 def prim():
   raise NotImplementedError

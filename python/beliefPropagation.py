@@ -25,19 +25,19 @@ def upwards_propagate(clique, visited, parent=None):
 
   if messages:
     message_table = reduce(mul,messages)
-    log.info("Clique %s receiving message table:\n%s\n%s" \
-        % (clique, message_table.nodes, message_table))
+    #log.info("Clique %s receiving message table:\n%s\n%s" \
+    #   % (clique, message_table.nodes, message_table))
 
     psi = clique.potential * message_table
     new_table = compute_max(psi, lv)
 
-    log.info("Table product with itself:\n%s\n%s" % (psi.nodes, psi))
+    #log.info("Table product with itself:\n%s\n%s" % (psi.nodes, psi))
   else:
     new_table = compute_max(clique.potential, lv)
 
-  log.info("Performing upwards pass from clique %s to parent %s" \
-          % (clique, parent))
-  log.info("Sending message: %s\n%s" % (new_table.nodes, new_table))
+  #log.info("Performing upwards pass from clique %s to parent %s" \
+  #       % (clique, parent))
+  #log.info("Sending message: %s\n%s" % (new_table.nodes, new_table))
   return new_table
 
 #
@@ -63,7 +63,7 @@ def downwards_propagate(assignment, clique, parent=None):
   # Update MAP over combined scope
   assignment.update(cur_assignment)
 
-  log.info("Performing downwards pass:\n%s\n%s\n" % (clique, assignment))
+  #log.info("Performing downwards pass:\n%s\n%s\n" % (clique, assignment))
 
   # Recurse onto children in tree
   for neighbour in clique.get_neighbours():
