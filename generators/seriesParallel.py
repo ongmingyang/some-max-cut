@@ -5,7 +5,7 @@ Usage:
 $ python seriesParallel.py <n> <outputfile>
 '''
 
-import sys, random, argparse
+import random, argparse
 
 class Node:
   def __init__(self):

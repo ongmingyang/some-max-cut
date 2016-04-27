@@ -6,7 +6,7 @@ import stats
 from collections import defaultdict as dd
 from factorTable import FactorTable
 
-LARGEST_CLIQUE_SIZE = 10
+LARGEST_CLIQUE_SIZE = 20
 
 #
 # Converts a graph into a clique tree, and returns the clique tree object

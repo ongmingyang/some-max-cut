@@ -10,4 +10,5 @@ TODO
 2. Strip superfluous wrappers -- clique does not need to exist?
 3. Code is sometimes confused if it should be OO or functional
 4. Logging takes up too much time
+5. factorTable init is too slow
 
