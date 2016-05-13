@@ -1,4 +1,4 @@
-from itertools import product, combinations
+from itertools import product
 
 #
 # Computes the maximum entries of the table over the new scope lv. This method
@@ -82,14 +82,10 @@ class FactorTable:
       for x in row_generator:
         self.rows[x] = 0
 
-        # Create a generator for assignment combinations and node
-        # combinations, both are iterated in the same order. Remember that
-        # nodes are sorted, and that matrix is lower triangular, so the
-        # combinations are generated in column major order
-        assignments = combinations(x,2)
-        for c,r in combinations(self.nodes,2):
-          xc, xr = assignments.next()
-          self.rows[x] -= matrix[r,c]*xr*xc
+        # Computes x'Ax
+        for i in xrange(len(self.nodes)):
+          for j in xrange(i):
+            self.rows[x] -= matrix[self.nodes[i],self.nodes[j]]*x[i]*x[j]
 
     else:
       self.rows = {x: 0 for x in row_generator}
