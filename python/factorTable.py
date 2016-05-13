@@ -15,7 +15,7 @@ def compute_max(table, lv):
   new_table = FactorTable(new_scope)
 
   # Indicator vector if variable is in new scope
-  i_s = [(x in new_scope) for x in old_scope]
+  i_s = [(x in new_table.nodes) for x in old_scope]
 
   # Iterate through all rows in the old table
   for old_assignment in table.rows: 
@@ -38,11 +38,11 @@ def compute_max(table, lv):
 def assign_max(table, assignment):
   # Define current variables
   cv = table.nodes
-  new_scope = set(x for x in cv if x not in assignment)
+  new_scope = [x for x in cv if x not in assignment]
   new_table = FactorTable(new_scope)
 
   # Indicator vector if variable is in new scope
-  i_s = [(x in new_scope) for x in cv]
+  i_s = [(x in new_table.nodes) for x in cv]
 
   # Iterate through all rows in the old table
   for old_assignment in table.rows: 
@@ -130,8 +130,8 @@ class FactorTable:
     new_table = FactorTable(new_scope)
 
     # Indicator vector if variable is in the scope of the two table
-    i_cv = [(x in cv) for x in new_scope]
-    i_lv = [(x in lv) for x in new_scope]
+    i_cv = [(x in cv) for x in new_table.nodes]
+    i_lv = [(x in lv) for x in new_table.nodes]
 
     for r in new_table.rows:
       # Determine row in current and other tables
