@@ -37,6 +37,7 @@ def graph_to_clique_tree(I, J):
     ''' % (cs, LARGEST_CLIQUE_SIZE))
 
   stats.maximum_clique = cs
+  stats.matrix = A
   return CliqueTree(cliques, A)
 
 #

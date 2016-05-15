@@ -8,17 +8,15 @@ from operator import mul
 #
 def max_marginal(tree, clique_id):
   root = tree.cliques[clique_id]
-  visited = set()
-  cpd = upwards_propagate(root, visited)
+  cpd = upwards_propagate(root)
   return cpd.get_map()
 
 #
 # Performs upwards pass from clique to parent clique. Returns message to parent
 #
-def upwards_propagate(clique, visited, parent=None):
-  children = set(clique.get_neighbours()) - set([parent]) - visited
-  visited.update(children)
-  messages = [upwards_propagate(child, visited, clique) for child in children]
+def upwards_propagate(clique, parent=None):
+  children = set(clique.get_neighbours()) - set([parent])
+  messages = [upwards_propagate(child, clique) for child in children]
 
   # Variables to retain
   lv = list(set(clique.nodes) & set(parent.nodes)) if parent else clique.nodes

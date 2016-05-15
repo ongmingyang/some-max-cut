@@ -1,4 +1,5 @@
 from itertools import product
+import stats
 
 #
 # Computes the maximum entries of the table over the new scope lv. This method
@@ -124,22 +125,26 @@ class FactorTable:
   #                 table
   #
   def __mul__(self, other):
-    cv = self.nodes
-    lv = other.nodes
-    new_scope = list(set(cv) | set(lv))
-    new_table = FactorTable(new_scope)
+    cv = set(self.nodes)
+    lv = set(other.nodes)
+    new_table = FactorTable(cv | lv)
+    #intersect_table = FactorTable(cv & lv, stats.matrix)
 
-    # Indicator vector if variable is in the scope of the two table
+    # Indicator vector if variable is in the scope of the old tables
     i_cv = [(x in cv) for x in new_table.nodes]
     i_lv = [(x in lv) for x in new_table.nodes]
+    #i_it = [(x in intersect_table.nodes) for x in new_table.nodes]
 
     for r in new_table.rows:
       # Determine row in current and other tables
       cv_row = tuple([v for i,v in enumerate(r) if i_cv[i]])
       lv_row = tuple([v for i,v in enumerate(r) if i_lv[i]])
+      #it_row = tuple([v for i,v in enumerate(r) if i_it[i]])
 
       # Compute log linear joint product
-      new_table.rows[r] = self.rows[cv_row] + other.rows[lv_row]
+      # TODO there might be a bug here
+      new_table.rows[r] = self.rows[cv_row] + other.rows[lv_row] #- \
+                          #intersect_table.rows[it_row]
 
     return new_table
 
