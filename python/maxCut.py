@@ -1,7 +1,6 @@
 import stats
 import cliqueTree as ct
 import beliefPropagation as bp
-from factorTable import FactorTable
 
 #
 # Performs max cut on a set of edges, and returns node assignments

@@ -54,6 +54,7 @@ class Clique:
     self.neighbours = set() # edges in clique tree
     self.nodes = sorted(nodes)
     self.potential = FactorTable(nodes, matrix)
+    self.belief = None
 
   # Returns a list of variables representing the sepset of self and other
   def determine_sepset_size(self, other):
@@ -69,7 +70,7 @@ class Clique:
     return self.neighbours
 
   # The clique in human readable format
-  def __str__(self):
+  def __repr__(self):
     return "(%s)" % str(self.nodes)
 
 #

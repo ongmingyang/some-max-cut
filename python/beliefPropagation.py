@@ -9,6 +9,7 @@ from operator import mul
 def max_marginal(tree, clique_id):
   root = tree.cliques[clique_id]
   cpd = upwards_propagate(root)
+  log.info("Final table: %s\n%s" % (cpd.nodes, cpd))
   return cpd.get_map()
 
 #
@@ -19,7 +20,7 @@ def upwards_propagate(clique, parent=None):
   messages = [upwards_propagate(child, clique) for child in children]
 
   # Variables to retain
-  lv = list(set(clique.nodes) & set(parent.nodes)) if parent else clique.nodes
+  sepset = list(set(clique.nodes) & set(parent.nodes)) if parent else clique.nodes
 
   if messages:
     message_table = reduce(mul,messages)
@@ -27,11 +28,12 @@ def upwards_propagate(clique, parent=None):
     #   % (clique, message_table.nodes, message_table))
 
     psi = clique.potential * message_table
-    new_table = compute_max(psi, lv)
+    clique.belief = psi
+    new_table = compute_max(psi, sepset)
 
     #log.info("Table product with itself:\n%s\n%s" % (psi.nodes, psi))
   else:
-    new_table = compute_max(clique.potential, lv)
+    new_table = compute_max(clique.potential, sepset)
 
   #log.info("Performing upwards pass from clique %s to parent %s" \
   #       % (clique, parent))
@@ -53,7 +55,8 @@ def traceback(tree, clique_id, assignment):
 #
 def downwards_propagate(assignment, clique, parent=None):
   # Assign current clique
-  maximized_potential = assign_max(clique.potential, assignment)
+  table = clique.belief if clique.belief else clique.potential
+  maximized_potential = assign_max(table, assignment)
 
   # Get MAP over current scope
   cur_assignment = maximized_potential.get_map()
@@ -64,7 +67,8 @@ def downwards_propagate(assignment, clique, parent=None):
   #log.info("Performing downwards pass:\n%s\n%s\n" % (clique, assignment))
 
   # Recurse onto children in tree
-  for neighbour in clique.get_neighbours():
-    if neighbour is parent: continue
+  l = clique.get_neighbours()
+  if parent in l: l.remove(parent)
+  for neighbour in l:
     downwards_propagate(assignment, neighbour, clique)
 

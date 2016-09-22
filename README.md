@@ -1,8 +1,7 @@
 Some Max Cut
 ------------
 
-There is a python version, and a C version. The python version requires
-cvx_opt and chompack. The C version doesn't work.
+This module requires cvx_opt and chompack.
 
 To run, do
 

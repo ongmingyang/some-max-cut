@@ -2,17 +2,17 @@ from itertools import product
 import stats
 
 #
-# Computes the maximum entries of the table over the new scope lv. This method
-# returns a new instance of FactorTable.
+# Computes the maximum entries of the table over the new scope sepset. This
+# method returns a new instance of FactorTable.
 #
 # @param table  The instance of FactorTable
-# @param lv     A list of variables to remain i.e. the new scope of
+# @param sepset A list of variables to remain i.e. the new scope of
 #               FactorTable after marginal maximization
 #
-def compute_max(table, lv):
+def compute_max(table, sepset):
   # Define current variables
   old_scope = table.nodes
-  new_scope = sorted(lv)
+  new_scope = sorted(sepset)
   new_table = FactorTable(new_scope)
 
   # Indicator vector if variable is in new scope
