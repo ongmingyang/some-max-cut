@@ -1,19 +1,18 @@
 from itertools import product
-import stats
 
 #
 # Computes the maximum entries of the table over the new scope sepset. This
-# method returns a new instance of FactorTable.
+# method returns a new instance of PotentialTable.
 #
-# @param table  The instance of FactorTable
+# @param table  The instance of PotentialTable
 # @param sepset A list of variables to remain i.e. the new scope of
-#               FactorTable after marginal maximization
+#               PotentialTable after marginal maximization
 #
 def compute_max(table, sepset):
   # Define current variables
   old_scope = table.nodes
   new_scope = sorted(sepset)
-  new_table = FactorTable(new_scope)
+  new_table = PotentialTable(new_scope)
 
   # Indicator vector if variable is in new scope
   i_s = [(x in new_table.nodes) for x in old_scope]
@@ -32,7 +31,7 @@ def compute_max(table, sepset):
 # Returns a new table that is maximized over the variables that are already
 # assigned
 #
-# @param table          The instance of FactorTable
+# @param table          The instance of PotentialTable
 # @param assignment     A dictionary of variables that are already assigned,
 #                       and their assignment values
 #
@@ -40,7 +39,7 @@ def assign_max(table, assignment):
   # Define current variables
   cv = table.nodes
   new_scope = [x for x in cv if x not in assignment]
-  new_table = FactorTable(new_scope)
+  new_table = PotentialTable(new_scope)
 
   # Indicator vector if variable is in new scope
   i_s = [(x in new_table.nodes) for x in cv]
@@ -64,7 +63,7 @@ def assign_max(table, assignment):
   return new_table
 
 #
-# A FactorTable object represents a factor/potential table
+# A PotentialTable object represents a potential table
 #
 # @param nodes        The nodes corresponding to the scope of the factor
 # @param matrix       If matrix is set, each row with assignment x will be
@@ -72,7 +71,7 @@ def assign_max(table, assignment):
 #                     submatrix of matrix spanned by the indices in node. If
 #                     matrix is not set, initialize all entries to 0.
 #
-class FactorTable:
+class PotentialTable:
   def __init__(self, nodes, matrix=False):
     row_generator = product([-1,1], repeat=len(nodes))
     self.nodes = sorted(nodes)
@@ -117,39 +116,34 @@ class FactorTable:
     MAP = max(self.rows, key=self.rows.get)
     return {v: MAP[i] for i,v in enumerate(self.nodes)}
 
-  # Returns a FactorTable that is the product of the current table and
+  # Returns a PotentialTable that is the product of the current table and
   # the other table. The new table has a scope that is the union of the
   # scopes of the two tables
   #
-  # @param other    An instance of FactorTable that represents the other
+  # @param other    An instance of PotentialTable that represents the other
   #                 table
   #
   def __mul__(self, other):
     cv = set(self.nodes)
     lv = set(other.nodes)
-    new_table = FactorTable(cv | lv)
-    #intersect_table = FactorTable(cv & lv, stats.matrix)
+    new_table = PotentialTable(cv | lv)
 
     # Indicator vector if variable is in the scope of the old tables
     i_cv = [(x in cv) for x in new_table.nodes]
     i_lv = [(x in lv) for x in new_table.nodes]
-    #i_it = [(x in intersect_table.nodes) for x in new_table.nodes]
 
     for r in new_table.rows:
       # Determine row in current and other tables
       cv_row = tuple([v for i,v in enumerate(r) if i_cv[i]])
       lv_row = tuple([v for i,v in enumerate(r) if i_lv[i]])
-      #it_row = tuple([v for i,v in enumerate(r) if i_it[i]])
 
       # Compute log linear joint product
-      # TODO there might be a bug here
-      new_table.rows[r] = self.rows[cv_row] + other.rows[lv_row] #- \
-                          #intersect_table.rows[it_row]
+      new_table.rows[r] = self.rows[cv_row] + other.rows[lv_row]
 
     return new_table
 
   #
-  # Prints FactorTable in human-readable format
+  # Prints PotentialTable in human-readable format
   #
   def __str__(self):
     s = ""

@@ -1,4 +1,4 @@
-from python import maxCut
+from python.solver import Solver
 
 import os, csv
 import unittest
@@ -17,9 +17,11 @@ class TestEndToEnd(unittest.TestCase):
     """
     f = open(op("chimera_2_2_4"))
     edges = csv.reader(f,delimiter=" ")
-    assignment, opt = maxCut.max_cut(edges)
+    solver = Solver(edges)
+    solution = solver.solve()
     f.close()
-    self.assertEqual(opt, 80)
+    self.assertEqual(solution.opt, 80)
 
 if __name__ == '__main__':
-  unittest.main()
+  suite = unittest.TestLoader().loadTestsFromTestCase(TestEndToEnd)
+  unittest.TextTestRunner(verbosity=2).run(suite)

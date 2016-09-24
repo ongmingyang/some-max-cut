@@ -1,7 +1,6 @@
 import sys, csv, time, argparse
 import logging as log
-from python.maxCut import max_cut
-import python.stats as stats
+from python.solver import Solver
 
 def timing(func):
   def wrapper(*args):
@@ -18,9 +17,10 @@ def timing(func):
 def main(path):
   f = open(path, 'r')
   edges = csv.reader(f,delimiter=" ")
-  assignment, opt = max_cut(edges)
+  solver = Solver(edges)
+  solution = solver.solve()
   f.close()
-  return opt
+  return solution
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
@@ -31,8 +31,8 @@ if __name__ == "__main__":
   if args.verbose:
     log.basicConfig(format="%(message)s", level=log.DEBUG)
 
-  opt = main(args.inputfile)
+  solution = main(args.inputfile)
   print "Graph has %d nodes, %d edges, with maximum clique size %d" \
-        % (stats.number_of_nodes, stats.number_of_edges, stats.maximum_clique),
-  print "and max cut of %d" % opt
+        % (solution.number_of_nodes, solution.number_of_edges, solution.max_clique_size),
+  print "and max cut of %d" % solution.opt
 

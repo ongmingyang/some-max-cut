@@ -2,43 +2,10 @@ import sys
 from cvxopt import spmatrix, amd
 import chompack as cp
 import spanningTree
-import stats 
 from collections import defaultdict as dd
-from factorTable import FactorTable
+from potentialTable import PotentialTable
 
 LARGEST_CLIQUE_SIZE = 20
-
-#
-# Converts a graph into a clique tree, and returns the clique tree object
-#
-# @param I,J   (I[i],J[i]) is an edge in E. We require I > J
-#
-def graph_to_clique_tree(I, J):
-  n = max(max(I),max(J))+1
-  stats.number_of_nodes = n
-  A = spmatrix(1, I+range(n), J+range(n))
-
-  # Compute symbolic factorization using AMD ordering
-  # This automatically does a chordal completion on the graph
-  symb = cp.symbolic(A, p=amd.order)
-
-  # The factorization permutes the node indices, we need to unpermute these
-  cliques = symb.cliques()
-  perm = symb.p
-  cliques = [[perm[i] for i in clique] for clique in cliques]
-
-  # If the largest clique is above threshold, we terminate the algorithm
-  cs = max(len(x) for x in cliques)
-  if cs > LARGEST_CLIQUE_SIZE:
-    sys.exit('''
-    Chordal completion has clique of size %d,
-    Max allowed size is %d,
-    Program terminating...
-    ''' % (cs, LARGEST_CLIQUE_SIZE))
-
-  stats.maximum_clique = cs
-  stats.matrix = A
-  return CliqueTree(cliques, A)
 
 #
 # A Clique object represents a clique in the clique tree
@@ -48,12 +15,12 @@ def graph_to_clique_tree(I, J):
 #                 used to determine factor table potentials
 #
 class Clique:
-  # Instantiation generates the factor table
+  # Instantiation generates the potential table
   def __init__(self, index, nodes, matrix):
     self.index = index
     self.neighbours = set() # edges in clique tree
     self.nodes = sorted(nodes)
-    self.potential = FactorTable(nodes, matrix)
+    self.potential = PotentialTable(nodes, matrix)
     self.belief = None
 
   # Returns a list of variables representing the sepset of self and other
@@ -77,6 +44,7 @@ class Clique:
 # A CliqueTree object represents a collection of cliques, each clique is
 # connected to neighbouring cliques via an undirected edge. 
 #
+# @param I,J        (I[i],J[i]) is an edge in E. We require I > J
 # @param cliques    A clique intersection graph represented as a list of lists, each list
 #                   representing the scope of a clique
 # @param matrix     A pointer to the original adjacency matrix of the graph,
@@ -85,14 +53,37 @@ class Clique:
 class CliqueTree:
   # Instantiation creates a clique list and connects each clique to all its
   # neighbours in the tree
-  def __init__(self, cliques, matrix):
+  def __init__(self, I, J):
+
+    n = max(max(I),max(J))+1
+    A = spmatrix(1, I+range(n), J+range(n))
+    self.n = n
+
+    # Compute symbolic factorization using AMD ordering
+    # This automatically does a chordal completion on the graph
+    symb = cp.symbolic(A, p=amd.order)
+
+    # The factorization permutes the node indices, we need to unpermute these
+    cliques = symb.cliques()
+    perm = symb.p
+    cliques = [[perm[i] for i in clique] for clique in cliques]
+
+    # If the largest clique is above threshold, we terminate the algorithm
+    self.max_clique_size = max(len(x) for x in cliques)
+    if self.max_clique_size > LARGEST_CLIQUE_SIZE:
+      sys.exit('''
+      Chordal completion has clique of size %d,
+      Max allowed size is %d,
+      Program terminating...
+      ''' % (self.max_clique_size, LARGEST_CLIQUE_SIZE))
+
     self.cliques = []
     edges = {} # Dictionary of {edge: weight}
     node_to_clique = dd(list)
 
     # Instantiate cliques and fill node_to_clique entries
     for index, nodes in enumerate(cliques):
-      clique = Clique(index, nodes, matrix)
+      clique = Clique(index, nodes, A)
       for node in nodes:
         node_to_clique[node].append(clique)
       self.cliques.append(clique)
@@ -112,7 +103,7 @@ class CliqueTree:
     spanningTree.kruskal(self.cliques, edges)
           
   # The clique tree in human readable format
-  def __str__(self):
+  def __repr__(self):
     s = "\n  ".join([str(c) + " -> " + \
              ", ".join([str(x) for x in c.get_neighbours()]) \
               for c in self.cliques])

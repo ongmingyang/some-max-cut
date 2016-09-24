@@ -1,5 +1,5 @@
 import logging as log
-from factorTable import compute_max, assign_max
+from potentialTable import compute_max, assign_max
 from operator import mul
 
 #
