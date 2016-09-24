@@ -1,7 +1,7 @@
 import sys
 from cvxopt import spmatrix, amd
 import chompack as cp
-import spanningTree
+import util.spanningTree as spanningTree
 from collections import defaultdict as dd
 from potentialTable import PotentialTable
 

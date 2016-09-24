@@ -1,6 +1,6 @@
 import sys, csv, time, argparse
 import logging as log
-from python.solver import Solver
+from core.solver import Solver
 
 def timing(func):
   def wrapper(*args):

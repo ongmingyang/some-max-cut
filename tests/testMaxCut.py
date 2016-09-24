@@ -1,4 +1,4 @@
-from python.solver import Solver
+from core.solver import Solver
 
 import os, csv
 import unittest

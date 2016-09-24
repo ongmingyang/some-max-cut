@@ -15,7 +15,8 @@ The input file contains the edges of the graph. For example,
 2 3
 ```
 
-Represents the complete graph on three vertices.
+Represents the complete graph on three vertices. A list of sample graphs are
+available in the directory `sample`
 
 Tests
 -----
