@@ -1,8 +1,7 @@
 import sys, csv, time, argparse
 import logging as log
-sys.path.insert(0,'python')
-from maxCut import max_cut
-import stats 
+from python.maxCut import max_cut
+import python.stats as stats
 
 def timing(func):
   def wrapper(*args):

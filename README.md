@@ -1,8 +1,6 @@
 Some Max Cut
 ------------
 
-This module requires cvx_opt and chompack.
-
 To run, do
 
 ```
@@ -18,6 +16,13 @@ The input file contains the edges of the graph. For example,
 ```
 
 Represents the complete graph on three vertices.
+
+Tests
+-----
+
+`make test`
+
+Or you could individually run each test with `python -m tests.nameOfTest`
 
 
 Profiling
