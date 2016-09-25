@@ -1,10 +1,16 @@
 Some Max Cut
 ------------
 
-To run, do
+There are some dependencies in this project. You can run `make install` to
+install them.
+
+Running
+-------
+
+To run the main procedure, do
 
 ```
-$ python main.py <inputfile>
+$ make INPUT=<inputfile>
 ```
 
 The input file contains the edges of the graph. For example,
@@ -21,16 +27,19 @@ available in the directory `sample`
 Tests
 -----
 
-`make test`
+```
+$ make test
+```
 
-Or you could individually run each test with `python -m tests.nameOfTest`
+Runs the test suite. Or you could run each test individually with 
+`python -m tests.nameOfTest`
 
 
 Profiling
 ---------
 
-To profile the script, run
+To profile the script, do
 
 ```
-python -m cProfile -s 'tottime' main.py <inputfile>
+$ make profile INPUT=<inputfile>
 ```
