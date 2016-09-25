@@ -1,14 +1,13 @@
 from itertools import product
 
 #
-# Computes the maximum entries of the table over the new scope sepset. This
-# method returns a new instance of PotentialTable.
+# Returns a new table that is the projection of the domain of the old table
+# onto sepset, with f(x) = max(f(inverse_projection(x)))
 #
 # @param table  The instance of PotentialTable
-# @param sepset A list of variables to remain i.e. the new scope of
-#               PotentialTable after marginal maximization
+# @param sepset The new scope of PotentialTable after marginal maximization
 #
-def compute_max(table, sepset):
+def max_projection(table, sepset):
   # Define current variables
   old_scope = table.nodes
   new_scope = sorted(sepset)
@@ -28,21 +27,21 @@ def compute_max(table, sepset):
   return new_table
 
 #
-# Returns a new table that is maximized over the variables that are already
-# assigned
+# Returns a new table that is the projection of the domain of the old table to
+# the space of unassigned variables
 #
 # @param table          The instance of PotentialTable
 # @param assignment     A dictionary of variables that are already assigned,
 #                       and their assignment values
 #
-def assign_max(table, assignment):
+def projection(table, assignment):
   # Define current variables
-  cv = table.nodes
-  new_scope = [x for x in cv if x not in assignment]
+  old_scope = table.nodes
+  new_scope = [x for x in old_scope if x not in assignment]
   new_table = PotentialTable(new_scope)
 
   # Indicator vector if variable is in new scope
-  i_s = [(x in new_table.nodes) for x in cv]
+  i_s = [(x in new_table.nodes) for x in old_scope]
 
   # Iterate through all rows in the old table
   for old_assignment in table.rows: 

@@ -1,5 +1,5 @@
 import logging as log
-from potentialTable import compute_max, assign_max
+from potentialTable import max_projection, projection
 from operator import mul
 
 #
@@ -29,11 +29,11 @@ def upwards_propagate(clique, parent=None):
 
     psi = clique.potential * message_table
     clique.belief = psi
-    new_table = compute_max(psi, sepset)
+    new_table = max_projection(psi, sepset)
 
     #log.info("Table product with itself:\n%s\n%s" % (psi.nodes, psi))
   else:
-    new_table = compute_max(clique.potential, sepset)
+    new_table = max_projection(clique.potential, sepset)
 
   #log.info("Performing upwards pass from clique %s to parent %s" \
   #       % (clique, parent))
@@ -56,7 +56,7 @@ def traceback(tree, clique_id, assignment):
 def downwards_propagate(assignment, clique, parent=None):
   # Assign current clique
   table = clique.belief if clique.belief else clique.potential
-  maximized_potential = assign_max(table, assignment)
+  maximized_potential = projection(table, assignment)
 
   # Get MAP over current scope
   cur_assignment = maximized_potential.get_map()
