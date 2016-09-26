@@ -4,14 +4,14 @@ from itertools import product
 # Returns a new table that is the projection of the domain of the old table
 # onto sepset, with f(x) = max(f(inverse_projection(x)))
 #
-# @param table  The instance of PotentialTable
-# @param sepset The new scope of PotentialTable after marginal maximization
+# @param table  The instance of Table
+# @param sepset The new scope of Table after marginal maximization
 #
 def max_projection(table, sepset):
   # Define current variables
   old_scope = table.nodes
   new_scope = sorted(sepset)
-  new_table = PotentialTable(new_scope)
+  new_table = Table(new_scope)
 
   # Indicator vector if variable is in new scope
   i_s = [(x in new_table.nodes) for x in old_scope]
@@ -30,7 +30,7 @@ def max_projection(table, sepset):
 # Returns a new table that is the projection of the domain of the old table to
 # the space of unassigned variables
 #
-# @param table          The instance of PotentialTable
+# @param table          The instance of Table
 # @param assignment     A dictionary of variables that are already assigned,
 #                       and their assignment values
 #
@@ -38,7 +38,7 @@ def projection(table, assignment):
   # Define current variables
   old_scope = table.nodes
   new_scope = [x for x in old_scope if x not in assignment]
-  new_table = PotentialTable(new_scope)
+  new_table = Table(new_scope)
 
   # Indicator vector if variable is in new scope
   i_s = [(x in new_table.nodes) for x in old_scope]
@@ -62,7 +62,7 @@ def projection(table, assignment):
   return new_table
 
 #
-# A PotentialTable object represents a potential table
+# A Table object represents a potential table
 #
 # @param nodes        The nodes corresponding to the scope of the factor
 # @param matrix       If matrix is set, each row with assignment x will be
@@ -70,7 +70,7 @@ def projection(table, assignment):
 #                     submatrix of matrix spanned by the indices in node. If
 #                     matrix is not set, initialize all entries to 0.
 #
-class PotentialTable:
+class Table:
   def __init__(self, nodes, matrix=False):
     row_generator = product([-1,1], repeat=len(nodes))
     self.nodes = sorted(nodes)
@@ -115,17 +115,17 @@ class PotentialTable:
     MAP = max(self.rows, key=self.rows.get)
     return {v: MAP[i] for i,v in enumerate(self.nodes)}
 
-  # Returns a PotentialTable that is the product of the current table and
+  # Returns a Table that is the product of the current table and
   # the other table. The new table has a scope that is the union of the
   # scopes of the two tables
   #
-  # @param other    An instance of PotentialTable that represents the other
+  # @param other    An instance of Table that represents the other
   #                 table
   #
   def __mul__(self, other):
     cv = set(self.nodes)
     lv = set(other.nodes)
-    new_table = PotentialTable(cv | lv)
+    new_table = Table(cv | lv)
 
     # Indicator vector if variable is in the scope of the old tables
     i_cv = [(x in cv) for x in new_table.nodes]
@@ -142,7 +142,7 @@ class PotentialTable:
     return new_table
 
   #
-  # Prints PotentialTable in human-readable format
+  # Prints Table in human-readable format
   #
   def __str__(self):
     s = ""

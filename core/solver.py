@@ -1,4 +1,5 @@
-import cliqueTree as ct
+from cliqueIntersectionGraph import CliqueIntersectionGraph
+from cliqueTree import CliqueTree
 import beliefPropagation as bp
 
 class Solver:
@@ -14,10 +15,11 @@ class Solver:
   #
   def solve(self):
     J, I = zip(*(sorted((int(i),int(j))) for i,j in self.edges))
-    c = ct.CliqueTree(list(I),list(J))
+    c = CliqueIntersectionGraph(list(I),list(J))
+    ct = CliqueTree(c)
     clique_id = 0
-    m = bp.max_marginal(c, clique_id)
-    bp.traceback(c, clique_id, m)
+    m = bp.max_marginal(ct, clique_id)
+    bp.traceback(ct, clique_id, m)
 
     # Include graph statistics in solution
     self.solution.number_of_nodes = c.n

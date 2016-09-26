@@ -1,5 +1,5 @@
 import logging as log
-from potentialTable import max_projection, projection
+from util.table import max_projection, projection
 from operator import mul
 
 #
