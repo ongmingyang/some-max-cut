@@ -1,26 +1,28 @@
+import sys
 from clique import Clique
 from cvxopt import spmatrix, amd
 from collections import defaultdict as dd
 import chompack as cp
 from util.graph import Graph
 
-LARGEST_CLIQUE_SIZE = 20
+LARGEST_CLIQUE_SIZE = 24
 
 #
 # A CliqueIntersectionGraph is a graph (V,E), where V is a set of cliques, each
 # bag containing a clique, and (i,j) in E if clique i and clique j have a non
 # empty sepset
 #
-# @param I,J        (I[i],J[i]) is an edge in the original graph. 
-#                   We require I > J
+# @param I,J,W      (I[i],J[i]) is an edge in the original graph with weight
+#                   W[i]. We require I > J
 #
 class CliqueIntersectionGraph(Graph):
-  def __init__(self, I, J):
+  def __init__(self, I, J, W):
     Graph.__init__(self)
     self.cliques = self.nodes # We use a different alias to prevent confusion
 
     n = max(max(I),max(J))+1
-    A = spmatrix(1, I+range(n), J+range(n))
+    eye = spmatrix(1, range(n), range(n))
+    A = spmatrix(W, I, J, (n,n)) + eye
     self.n = n
 
     # Compute symbolic factorization using AMD ordering

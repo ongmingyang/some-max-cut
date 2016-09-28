@@ -17,19 +17,19 @@ def chimera(M,N,L,f):
       # Connect node to L nodes on other side of bipartition
       i_start = i - i_residue
       for j in xrange(L,2*L):
-        f.write("%d %d\n" % (i,j+i_start))
+        f.write("%d %d 1\n" % (i,j+i_start))
 
       # Connect to lower cluster, if it exists
       j = N*2*L + i
       if j < high:
-        f.write("%d %d\n" % (i,j))
+        f.write("%d %d 1\n" % (i,j))
 
     # Consider nodes on the right of the bipartition
     else:
       # Connect to right cluster, if it exists
       j = 2*L + i
       if i % (2*L*N) < j % (2*L*N):
-        f.write("%d %d\n" % (i,j))
+        f.write("%d %d 1\n" % (i,j))
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()

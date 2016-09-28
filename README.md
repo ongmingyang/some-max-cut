@@ -13,12 +13,14 @@ To run the main procedure, do
 $ make INPUT=<inputfile>
 ```
 
-The input file contains the edges of the graph. For example,
+The input file contains the edges of the graph. Each row is a triple `i, j, w`
+representing an edge connecting node `i` to node `j` with edge weight `w`. For
+example,
 
 ```
-0 1
-1 2
-2 3
+0 1 1
+1 2 1
+2 3 1
 ```
 
 Represents the complete graph on three vertices. A list of sample graphs are

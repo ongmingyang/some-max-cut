@@ -73,7 +73,7 @@ def bfs(graph, start, f):
             index += 1
             w.index = index
         if v.index < w.index:
-          f.write("%d %d\n" % (v.index, w.index))
+          f.write("%d %d 1\n" % (v.index, w.index))
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()

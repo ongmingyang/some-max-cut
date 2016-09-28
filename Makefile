@@ -1,5 +1,5 @@
 init:
-	python core/main.py ${INPUT} 
+	python core/main.py ${INPUT}
 
 install:
 	pip install -r requirements

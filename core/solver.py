@@ -1,3 +1,4 @@
+import logging as log
 from cliqueIntersectionGraph import CliqueIntersectionGraph
 from cliqueTree import CliqueTree
 import beliefPropagation as bp
@@ -14,8 +15,9 @@ class Solver:
   # Performs max cut on a set of edges, and returns node assignments
   #
   def solve(self):
-    J, I = zip(*(sorted((int(i),int(j))) for i,j in self.edges))
-    c = CliqueIntersectionGraph(list(I),list(J))
+    arrange = lambda i,j,w: (min(i,j), max(i,j), w) 
+    J, I, W = zip(*(arrange(int(i),int(j),int(w)) for i,j,w in self.edges))
+    c = CliqueIntersectionGraph(list(I),list(J), list(W))
     ct = CliqueTree(c)
     clique_id = 0
     m = bp.max_marginal(ct, clique_id)
@@ -27,6 +29,7 @@ class Solver:
     self.solution.number_of_edges = len(I)
     self.solution.assignment = m
     self.solution.opt = self.eval_cut(I, J, m)
+    log.info("Final solution: %s\n" % (m))
     return self.solution
 
   #
