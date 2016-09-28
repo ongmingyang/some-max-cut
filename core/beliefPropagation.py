@@ -20,7 +20,7 @@ def upwards_propagate(clique, parent=None):
   messages = [upwards_propagate(child, clique) for child in children]
 
   # Variables to retain
-  sepset = list(set(clique.nodes) & set(parent.nodes)) if parent else clique.nodes
+  sepset = clique.sepset(parent) if parent else clique.nodes
 
   if messages:
     message_table = reduce(mul,messages)

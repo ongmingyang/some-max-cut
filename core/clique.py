@@ -18,9 +18,12 @@ class Clique(Node):
     self.potential = Table(nodes, matrix)
     self.belief = None
 
+  def sepset(self, other):
+    return list(set(self.nodes) & set(other.nodes))
+
   # Returns a list of variables representing the sepset of self and other
   def determine_sepset_size(self, other):
-    return len(set(self.nodes) & set(other.nodes))
+    return len(sepset(other))
 
   # The clique in human readable format
   def __repr__(self):
