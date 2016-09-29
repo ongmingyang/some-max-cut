@@ -23,7 +23,7 @@ class Clique(Node):
 
   # Returns a list of variables representing the sepset of self and other
   def determine_sepset_size(self, other):
-    return len(sepset(other))
+    return len(self.sepset(other))
 
   # The clique in human readable format
   def __repr__(self):
