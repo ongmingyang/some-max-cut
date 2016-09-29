@@ -6,20 +6,24 @@ from operator import mul
 # Performs the max marginal operation on a clique tree, using the clique with
 # index clique_id as the root
 #
-def max_marginal(tree, clique_id):
-  root = tree.cliques[clique_id]
-  cpd = upwards_propagate(root)
-  log.info("Final table: %s\n%s" % (cpd.nodes, cpd))
-  return cpd.get_map()
+def max_marginal(tree, assignment):
+  #root = tree.cliques[clique_id]
+  root = tree.root.index
+  root_belief = upwards_propagate(tree, root)
+  #log.info("Final table: %s\n%s" % (root_belief.nodes, root_belief))
+  assignment.update(root_belief.get_map())
+  return
 
 #
 # Performs upwards pass from clique to parent clique. Returns message to parent
 #
-def upwards_propagate(clique, parent=None):
-  children = set(clique.get_neighbours()) - set([parent])
-  messages = [upwards_propagate(child, clique) for child in children]
+def upwards_propagate(tree, clique_id):
+  children = tree.get_children(clique_id)
+  parent = tree.get_parent_clique(clique_id)
+  messages = [upwards_propagate(tree, child) for child in children]
 
   # Variables to retain
+  clique = tree.get_clique(clique_id)
   sepset = clique.sepset(parent) if parent else clique.nodes
 
   if messages:
@@ -27,6 +31,7 @@ def upwards_propagate(clique, parent=None):
     #log.info("Clique %s receiving message table:\n%s\n%s" \
     #   % (clique, message_table.nodes, message_table))
 
+    # TODO clique potential should be explicit in tree not implicit in clique
     psi = clique.potential * message_table
     clique.belief = psi
     new_table = max_projection(psi, sepset)
@@ -45,16 +50,18 @@ def upwards_propagate(clique, parent=None):
 # conditioned on the most probable assignment for x. This is known as a
 # traceback procedure
 #
-def traceback(tree, clique_id, assignment):
-  root = tree.cliques[clique_id]
-  downwards_propagate(assignment, root)
+def traceback(tree, assignment):
+  #root = tree.cliques[clique_id]
+  root = tree.root
+  downwards_propagate(tree, assignment, root.index)
 
 #
 # Performs downward pass from clique to its children. Assigns variables along
 # the way
 #
-def downwards_propagate(assignment, clique, parent=None):
+def downwards_propagate(tree, assignment, clique_id):
   # Assign current clique
+  clique = tree.get_clique(clique_id)
   table = clique.belief if clique.belief else clique.potential
   maximized_potential = projection(table, assignment)
 
@@ -67,8 +74,6 @@ def downwards_propagate(assignment, clique, parent=None):
   #log.info("Performing downwards pass:\n%s\n%s\n" % (clique, assignment))
 
   # Recurse onto children in tree
-  l = clique.get_neighbours()
-  if parent in l: l.remove(parent)
-  for neighbour in l:
-    downwards_propagate(assignment, neighbour, clique)
+  for child_id in tree.children[clique_id]:
+    downwards_propagate(tree, assignment, child_id)
 

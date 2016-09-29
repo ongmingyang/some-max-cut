@@ -19,9 +19,11 @@ class Solver:
     J, I, W = zip(*(arrange(int(i),int(j),int(w)) for i,j,w in self.edges))
     c = CliqueIntersectionGraph(list(I),list(J), list(W))
     ct = CliqueTree(c)
-    clique_id = 0
-    m = bp.max_marginal(ct, clique_id)
-    bp.traceback(ct, clique_id, m)
+
+    # Current assignment
+    m = {}
+    bp.max_marginal(ct, m)
+    bp.traceback(ct, m)
 
     # Include graph statistics in solution
     self.solution.number_of_nodes = c.n
