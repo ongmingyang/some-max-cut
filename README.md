@@ -1,6 +1,14 @@
 Some Max Cut
 ------------
 
+This is an exact solver for instances of the QUBO problem. Given a symmetric
+`Q`, we want to obtain an assignment `x` such that `x'Qx` is maximized, with
+the restriction on `x` being that every `x_i` in `x` takes on the value `1` or
+`-1`.
+
+We can think of `Q` as the adjacency matrix of a weighted graph `G`, then the
+maximizing assignment for `x'Qx` is simply the maximum cut of the graph.
+
 There are some dependencies in this project. You can run `make install` to
 install them.
 

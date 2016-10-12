@@ -6,8 +6,8 @@ from collections import defaultdict as dd
 class Tree:
   def __init__(self, nodes, children, parent, root):
     self.nodes = nodes
-    self.children = children # Dictionary of {node: [list of children]}
-    self.parent = parent # Dictionary of {node: parent}
+    self.children = children # Dictionary of {node_id: [list of children_id]}
+    self.parent = parent # Dictionary of {node_id: parent_id}
     self.root = root
 
   #
@@ -32,7 +32,6 @@ class Tree:
       u_root, v_root = find_set(u), find_set(v)
       if u_root is not v_root:
         # Edge belongs in MST
-        #u.connect(v) # TODO don't use internal node representation
         new_edges[u.index].add(v.index)
         new_edges[v.index].add(u.index)
         root_of[u_root] = v_root

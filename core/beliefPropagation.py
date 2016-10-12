@@ -8,8 +8,8 @@ from operator import mul
 #
 def max_marginal(tree, assignment):
   #root = tree.cliques[clique_id]
-  root = tree.root.index
-  root_belief = upwards_propagate(tree, root)
+  root_id = tree.root.index
+  root_belief = upwards_propagate(tree, root_id)
   #log.info("Final table: %s\n%s" % (root_belief.nodes, root_belief))
   assignment.update(root_belief.get_map())
   return
@@ -18,9 +18,9 @@ def max_marginal(tree, assignment):
 # Performs upwards pass from clique to parent clique. Returns message to parent
 #
 def upwards_propagate(tree, clique_id):
-  children = tree.get_children(clique_id)
+  children_id = tree.get_children(clique_id)
   parent = tree.get_parent_clique(clique_id)
-  messages = [upwards_propagate(tree, child) for child in children]
+  messages = [upwards_propagate(tree, child_id) for child_id in children_id]
 
   # Variables to retain
   clique = tree.get_clique(clique_id)
@@ -31,10 +31,8 @@ def upwards_propagate(tree, clique_id):
     #log.info("Clique %s receiving message table:\n%s\n%s" \
     #   % (clique, message_table.nodes, message_table))
 
-    # TODO clique potential should be explicit in tree not implicit in clique
-    psi = clique.potential * message_table
-    clique.belief = psi
-    new_table = max_projection(psi, sepset)
+    clique.belief = clique.potential * message_table
+    new_table = max_projection(clique.belief, sepset)
 
     #log.info("Table product with itself:\n%s\n%s" % (psi.nodes, psi))
   else:
@@ -51,7 +49,6 @@ def upwards_propagate(tree, clique_id):
 # traceback procedure
 #
 def traceback(tree, assignment):
-  #root = tree.cliques[clique_id]
   root = tree.root
   downwards_propagate(tree, assignment, root.index)
 
